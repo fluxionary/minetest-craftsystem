@@ -22,6 +22,5 @@ craftsystem = {
 	end,
 }
 
-craftsystem.dofile("util")
 craftsystem.dofile("api")
 craftsystem.dofile("do_registration")

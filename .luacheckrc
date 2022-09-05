@@ -26,6 +26,7 @@ stds.craftsystem = {
 		"craftsystem",
 	},
 	read_globals = {
+		"futil",
 		"minetest",
 	},
 }

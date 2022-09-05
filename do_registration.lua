@@ -1,5 +1,5 @@
 local api = craftsystem.api
-local resolve_item = craftsystem.util.resolve_item
+local resolve_item = futil.resolve_item
 
 local function analyze_and_register_shaped_craft(shaped_craft)
 	local output = resolve_item(shaped_craft.output)
