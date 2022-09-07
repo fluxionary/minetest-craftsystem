@@ -1,7 +1,7 @@
 local api = craftsystem.api
 local resolve_item = futil.resolve_item
 
-local function analyze_and_register_shaped_craft(shaped_craft)
+local function analyze_and_register_shaped(shaped_craft)
 	local output = resolve_item(shaped_craft.output)
 	if not output then
 		error(("craft output %q doesn't exist"):format(shaped_craft.output))
@@ -37,7 +37,7 @@ local function analyze_and_register_shaped_craft(shaped_craft)
 	})
 end
 
-local function analyze_and_register_shapeless_craft(shapeless_craft)
+local function analyze_and_register_shapeless(shapeless_craft)
 	local output = resolve_item(shapeless_craft.output)
 	if not output then
 		error(("craft output %q doesn't exist"):format(shapeless_craft.output))
@@ -71,7 +71,7 @@ local function analyze_and_register_shapeless_craft(shapeless_craft)
 	})
 end
 
-local function analyze_and_register_cooking_craft(cooking_craft)
+local function analyze_and_register_cooking(cooking_craft)
 	local output = resolve_item(cooking_craft.output)
 	if not output then
 		error(("craft output %q doesn't exist"):format(cooking_craft.output))
@@ -104,7 +104,7 @@ local function analyze_and_register_cooking_craft(cooking_craft)
 	})
 end
 
-local function analyze_and_register_fuel_craft(fuel_craft)
+local function analyze_and_register_fuel(fuel_craft)
 	local recipe = fuel_craft.recipe
 	local replacements = {}
 
@@ -135,18 +135,18 @@ minetest.register_on_mods_loaded(function()
 	-- we assume all items and groups are final at this point
 
 	for _, shaped_craft in ipairs(api.shaped_crafts) do
-		analyze_and_register_shaped_craft(shaped_craft)
+		analyze_and_register_shaped(shaped_craft)
 	end
 
 	for _, shapeless_craft in ipairs(api.shapeless_crafts) do
-		analyze_and_register_shapeless_craft(shapeless_craft)
+		analyze_and_register_shapeless(shapeless_craft)
 	end
 
 	for _, cooking_craft in ipairs(api.cooking_crafts) do
-		analyze_and_register_cooking_craft(cooking_craft)
+		analyze_and_register_cooking(cooking_craft)
 	end
 
 	for _, fuel_craft in ipairs(api.fuel_crafts) do
-		analyze_and_register_fuel_craft(fuel_craft)
+		analyze_and_register_fuel(fuel_craft)
 	end
 end)

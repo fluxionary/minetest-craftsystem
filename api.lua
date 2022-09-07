@@ -33,32 +33,36 @@ api.shapeless_crafts = {}
 api.cooking_crafts = {}
 api.fuel_crafts = {}
 
-function api.register_shaped_craft(output, recipe)
+function api.register_shaped(output, recipe, meta)
 	table.insert(api.shaped_crafts, {
 		output = output,
 		recipe = recipe,
+		meta = meta,
 	})
 end
 
-function api.register_shapeless_craft(output, recipe)
+function api.register_shapeless(output, recipe, meta)
 	table.insert(api.shapeless_crafts, {
 		output = output,
 		recipe = recipe,
+		meta = meta,
 	})
 end
 
-function api.register_cooking_craft(output, recipe, cooktime)
+function api.register_cooking(output, recipe, cooktime, meta)
 	table.insert(api.cooking_crafts, {
 		output = output,
 		recipe = recipe,
 		cooktime = cooktime,
+		meta = meta,
 	})
 end
 
-function api.register_fuel_craft(recipe, burntime)
+function api.register_fuel(recipe, burntime, meta)
 	table.insert(api.fuel_crafts, {
 		recipe = recipe,
 		burntime = burntime,
+		meta = meta,
 	})
 end
 

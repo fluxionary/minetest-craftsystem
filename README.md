@@ -10,7 +10,7 @@ a minetest API mod to automate generating recipe replacements
 * `craftsystem.api.register_replacement("bees:bottle_honey", "vessels:bottle_empty")`
   whenever `"bees:bottle_honey"` is used in a recipe registered w/ this mod, it will be replaced w/
   "vessels:bottle_empty" - even if the recipe uses a group e.g. `"group:food_sugar"`
-* `craftystem.api.register_shaped_craft("mod:candy_apple", {{"group:food_sugar", "group:food_apple"}})`
+* `craftystem.api.register_shaped("mod:candy_apple", {{"group:food_sugar", "group:food_apple"}})`
   automatically get a bottle if `"bees:bottle_honey"` is used, but not if `"default:sugar"` is used
-* `craftystem.api.register_shapeless_craft("mod:candy_apple", {"group:food_sugar", "group:food_apple"})`
+* `craftystem.api.register_shapeless("mod:candy_apple", {"group:food_sugar", "group:food_apple"})`
   automatically get a bottle if `"bees:bottle_honey"` is used, but not if `"default:sugar"` is used
