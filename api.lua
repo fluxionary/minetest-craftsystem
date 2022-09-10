@@ -28,43 +28,7 @@ function api.register_replacement(item, replacement)
 	end
 end
 
-api.shaped_crafts = {}
-api.shapeless_crafts = {}
-api.cooking_crafts = {}
-api.fuel_crafts = {}
-
-function api.register_shaped(output, recipe, meta)
-	table.insert(api.shaped_crafts, {
-		output = output,
-		recipe = recipe,
-		meta = meta,
-	})
-end
-
-function api.register_shapeless(output, recipe, meta)
-	table.insert(api.shapeless_crafts, {
-		output = output,
-		recipe = recipe,
-		meta = meta,
-	})
-end
-
-function api.register_cooking(output, recipe, cooktime, meta)
-	table.insert(api.cooking_crafts, {
-		output = output,
-		recipe = recipe,
-		cooktime = cooktime,
-		meta = meta,
-	})
-end
-
-function api.register_fuel(recipe, burntime, meta)
-	table.insert(api.fuel_crafts, {
-		recipe = recipe,
-		burntime = burntime,
-		meta = meta,
-	})
-end
+api.registered_crafts = {}
 
 minetest.register_on_mods_loaded(function()
 	local items_by_group = {}
@@ -82,20 +46,33 @@ minetest.register_on_mods_loaded(function()
 	api.items_by_groups = items_by_group
 end)
 
-function api.get_item_replacements(item)
-	return {api.item_replacements[item]}
-end
+function api.get_replacements(item)
+	local mod, name = item:match("^([^:]+):([^:]+)$")
 
-function api.get_group_replacements(group)
-	if api.group_replacements[group] then
-		return {api.group_replacements[group]}
+	if not mod and name then
+		error(("don't understand item named %q"):format(item))
 	end
 
-	local replacements = {}
-	for _, item in ipairs(api.items_by_groups[group]) do
-		table.insert_all(replacements, api.get_item_replacements(item))
+	if mod == "group" then
+		if api.group_replacements[name] then
+			return {api.group_replacements[name]}
+		end
+
+		if not api.items_by_groups then
+			error("cannot invoke craftsystem.api.get_group_replacements until after mods are loaded")
+		end
+
+		local replacements = {}
+
+		for _, other_item in ipairs(api.items_by_groups[name]) do
+			table.insert_all(replacements, api.get_item_replacements(other_item))
+		end
+
+		return replacements
+
+	else
+		return {api.item_replacements[item]}
 	end
-	return replacements
 end
 
 craftsystem.api = api

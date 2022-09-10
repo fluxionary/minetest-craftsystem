@@ -1,31 +1,42 @@
 local api = craftsystem.api
+
+local count_elements = futil.count_elements
 local resolve_item = futil.resolve_item
 
-local function analyze_and_register_shaped(shaped_craft)
-	local output = resolve_item(shaped_craft.output)
-	if not output then
-		error(("craft output %q doesn't exist"):format(shaped_craft.output))
+local function resolve_and_replace(item, no_replace_counts, replacements)
+	if item:sub(1, 6) ~= "group:" then
+		local resolved = resolve_item(item)
+
+		if not resolved then
+			error(("craft ingredient %q doesn't exist"):format(item))
+		end
+
+		item = resolved
 	end
 
-	local recipe = table.copy(shaped_craft.recipe)
+	if (no_replace_counts[item] or 0) == 0 then
+		table.insert_all(replacements, api.get_replacements(item))
+
+	else
+		no_replace_counts[item] = no_replace_counts[item] - 1
+	end
+
+	return item
+end
+
+local function analyze_and_register_shaped(craft)
+	local output = resolve_item(craft.output)
+	if not output then
+		error(("craft output %q doesn't exist"):format(craft.output))
+	end
+
+	local recipe = table.copy(craft.recipe)
+	local no_replace_counts = count_elements(craft.no_replace)
 	local replacements = {}
 
-	for i, row in ipairs(recipe) do
+	for _, row in ipairs(recipe) do
 		for j, item in pairs(row) do
-			if item:sub(1, 6) == "group:" then
-				table.insert_all(replacements, api.get_group_replacements(item:sub(7)))
-
-			else
-				local resolved = resolve_item(item)
-
-				if not resolved then
-					error(("craft ingredient %q doesn't exist"):format(item))
-				end
-
-				row[j] = resolved
-
-				table.insert_all(replacements, api.get_item_replacements(resolved))
-			end
+			row[j] = resolve_and_replace(item, no_replace_counts, replacements)
 		end
 	end
 
@@ -37,30 +48,18 @@ local function analyze_and_register_shaped(shaped_craft)
 	})
 end
 
-local function analyze_and_register_shapeless(shapeless_craft)
-	local output = resolve_item(shapeless_craft.output)
+local function analyze_and_register_shapeless(craft)
+	local output = resolve_item(craft.output)
 	if not output then
-		error(("craft output %q doesn't exist"):format(shapeless_craft.output))
+		error(("craft output %q doesn't exist"):format(craft.output))
 	end
 
-	local recipe = table.copy(shapeless_craft.recipe)
+	local recipe = table.copy(craft.recipe)
+	local no_replace_counts = count_elements(craft.no_replace)
 	local replacements = {}
 
 	for i, item in pairs(recipe) do
-		if item:sub(1, 6) == "group:" then
-			table.insert_all(replacements, api.get_group_replacements(item:sub(7)))
-
-		else
-			local resolved = resolve_item(item)
-
-			if not resolved then
-				error(("craft ingredient %q doesn't exist"):format(item))
-			end
-
-			recipe[i] = resolved
-
-			table.insert_all(replacements, api.get_item_replacements(resolved))
-		end
+		recipe[i] = resolve_and_replace(item, no_replace_counts, replacements)
 	end
 
 	minetest.register_craft({
@@ -71,82 +70,57 @@ local function analyze_and_register_shapeless(shapeless_craft)
 	})
 end
 
-local function analyze_and_register_cooking(cooking_craft)
-	local output = resolve_item(cooking_craft.output)
+local function analyze_and_register_cooking(craft)
+	local output = resolve_item(craft.output)
 	if not output then
-		error(("craft output %q doesn't exist"):format(cooking_craft.output))
+		error(("craft output %q doesn't exist"):format(craft.output))
 	end
 
-	local recipe = cooking_craft.recipe
+	local item = craft.recipe
+	local no_replace_counts = count_elements(craft.no_replace)
 	local replacements = {}
 
-	if recipe:sub(1, 6) == "group:" then
-		table.insert_all(replacements, api.get_group_replacements(recipe:sub(7)))
-
-	else
-		local resolved = resolve_item(recipe)
-
-		if not resolved then
-			error(("craft ingredient %q doesn't exist"):format(recipe))
-		end
-
-		recipe = resolved
-
-		table.insert_all(replacements, api.get_item_replacements(resolved))
-	end
+	item = resolve_and_replace(item, no_replace_counts, replacements)
 
 	minetest.register_craft({
 		type = "cooking",
 		output = output,
-		recipe = recipe,
+		recipe = item,
 		replacements = replacements,
-		cooktime = cooking_craft.cooktime,
+		cooktime = craft.cooktime,
 	})
 end
 
-local function analyze_and_register_fuel(fuel_craft)
-	local recipe = fuel_craft.recipe
+local function analyze_and_register_fuel(craft)
+	local item = craft.recipe
+	local no_replace_counts = count_elements(craft.no_replace)
 	local replacements = {}
 
-	if recipe:sub(1, 6) == "group:" then
-		table.insert_all(replacements, api.get_group_replacements(recipe:sub(7)))
-
-	else
-		local resolved = resolve_item(recipe)
-
-		if not resolved then
-			error(("craft ingredient %q doesn't exist"):format(recipe))
-		end
-
-		recipe = resolved
-
-		table.insert_all(replacements, api.get_item_replacements(resolved))
-	end
+	item = resolve_and_replace(item, no_replace_counts, replacements)
 
 	minetest.register_craft({
 		type = "fuel",
-		recipe = recipe,
+		recipe = item,
 		replacements = replacements,
-		burntime = fuel_craft.burntime,
+		burntime = craft.burntime,
 	})
 end
 
 minetest.register_on_mods_loaded(function()
 	-- we assume all items and groups are final at this point
 
-	for _, shaped_craft in ipairs(api.shaped_crafts) do
-		analyze_and_register_shaped(shaped_craft)
-	end
+	for _, craft in ipairs(api.registered_crafts) do
+		if craft.type == "shaped" then
+			analyze_and_register_shaped(craft)
 
-	for _, shapeless_craft in ipairs(api.shapeless_crafts) do
-		analyze_and_register_shapeless(shapeless_craft)
-	end
+		elseif craft.type == "shapeless" then
+			analyze_and_register_shapeless(craft)
 
-	for _, cooking_craft in ipairs(api.cooking_crafts) do
-		analyze_and_register_cooking(cooking_craft)
-	end
+		elseif craft.type == "cooking" then
+			analyze_and_register_cooking(craft)
 
-	for _, fuel_craft in ipairs(api.fuel_crafts) do
-		analyze_and_register_fuel(fuel_craft)
+		elseif craft.type == "fuel" then
+			analyze_and_register_fuel(craft)
+		end
 	end
 end)
