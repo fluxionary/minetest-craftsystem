@@ -3,6 +3,16 @@ local api = craftsystem.api
 local count_elements = futil.count_elements
 local resolve_item = futil.resolve_item
 
+local function resolve_all(items)
+	local resolved = {}
+
+	for _, item in ipairs(items or {}) do
+		table.insert(resolved, resolve_item(item))
+	end
+
+	return resolved
+end
+
 local function resolve_and_replace(item, no_replace_counts, replacements)
 	if item:sub(1, 6) ~= "group:" then
 		local resolved = resolve_item(item)
@@ -31,7 +41,7 @@ local function analyze_and_register_shaped(craft)
 	end
 
 	local recipe = table.copy(craft.recipe)
-	local no_replace_counts = count_elements(craft.no_replace)
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
 	local replacements = {}
 
 	for _, row in ipairs(recipe) do
@@ -55,7 +65,7 @@ local function analyze_and_register_shapeless(craft)
 	end
 
 	local recipe = table.copy(craft.recipe)
-	local no_replace_counts = count_elements(craft.no_replace)
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
 	local replacements = {}
 
 	for i, item in pairs(recipe) do
@@ -77,7 +87,7 @@ local function analyze_and_register_cooking(craft)
 	end
 
 	local item = craft.recipe
-	local no_replace_counts = count_elements(craft.no_replace)
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
 	local replacements = {}
 
 	item = resolve_and_replace(item, no_replace_counts, replacements)
@@ -93,7 +103,7 @@ end
 
 local function analyze_and_register_fuel(craft)
 	local item = craft.recipe
-	local no_replace_counts = count_elements(craft.no_replace)
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
 	local replacements = {}
 
 	item = resolve_and_replace(item, no_replace_counts, replacements)
