@@ -28,14 +28,72 @@ function api.register_replacement(item, replacement)
 	end
 end
 
+local function validate(def)
+	assert(def, "recipe is nil")
+
+	if def.type == "fuel" then
+		assert(type(def.recipe) == "string", ("invalid fuel recipe %q"):format(dump(def.recipe)))
+		return
+	end
+
+	assert(type(def.output) == "string", ("invalid output %q"):format(dump(def.output)))
+	assert(not def.output:match("^group:"), ("invalid output %q"):format(dump(def.output)))
+
+	if def.type == "cooking" then
+		assert(type(def.recipe) == "string", ("invalid cooking recipe %q"):format(dump(def.recipe)))
+
+	elseif def.type == "shapeless" then
+		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shapeless recipe %q"):format(dump(def.recipe)))
+
+		local expeted_count = #def.recipe
+		local count = 0
+
+		for k, v in pairs(def.recipe) do
+			count = count + 1
+			assert(type(k) == "number" and type(v) == "string", ("invalid shapeless recipe %q"):format(dump(def.recipe)))
+		end
+
+		assert(count == expeted_count, ("invalid shapeless recipe %q"):format(dump(def.recipe)))
+
+	elseif def.type == nil or def.type == "shaped" then
+		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shaped recipe %q"):format(dump(def.recipe)))
+		local expected_width = #def.recipe[1]
+		for k, v in pairs(def.recipe) do
+			assert(type(k) == "number" and type(v) == "table" and #v == expected_width,
+                               ("invalid shaped recipe %q"):format(dump(def.recipe)))
+			local width = 0
+			for k1, v1 in pairs(v) do
+				assert(type(k1) == "number" and type(v1) == "string", ("invalid shaped recipe %q"):format(dump(def.recipe)))
+				width = width + 1
+			end
+			assert(width == expected_width)
+		end
+
+	else
+		error(("unknown recipe type %q"):format(def.type))
+	end
+end
+
 api.registered_crafts = {}
+
+function api.register_craft(def)
+	validate(def)
+	table.insert(api.registered_crafts, def)
+end
 
 minetest.register_on_mods_loaded(function()
 	local items_by_group = {}
 
 	for name, def in pairs(minetest.registered_items) do
 		for group, value in pairs(def.groups or {}) do
-			if value > 0 then
+			if type(value) ~= "number" then
+				craftsystem.log("error", "value %q for group %s of item %s is type %s; must be number",
+					value, group, name, type(value))
+
+				value = tonumber(value)
+			end
+
+			if value and value > 0 then
 				local items = items_by_group[group] or {}
 				table.insert(items, name)
 				items_by_group[group] = items
@@ -55,7 +113,7 @@ function api.get_replacements(item)
 
 	if mod == "group" then
 		if api.group_replacements[name] then
-			return {api.group_replacements[name]}
+			return {{name, api.group_replacements[name]}}
 		end
 
 		if not api.items_by_groups then
@@ -65,14 +123,16 @@ function api.get_replacements(item)
 		local replacements = {}
 
 		for _, other_item in ipairs(api.items_by_groups[name]) do
-			table.insert_all(replacements, api.get_item_replacements(other_item))
+			table.insert_all(replacements, api.get_replacements(other_item))
 		end
 
 		return replacements
 
-	else
-		return {api.item_replacements[item]}
+	elseif api.item_replacements[item] then
+		return {{item, api.item_replacements[item]}}
 	end
+
+	return {}
 end
 
 craftsystem.api = api

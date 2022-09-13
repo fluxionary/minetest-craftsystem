@@ -7,31 +7,46 @@ local function resolve_all(items)
 	local resolved = {}
 
 	for _, item in ipairs(items or {}) do
-		table.insert(resolved, resolve_item(item))
+		local prefix = item:match("^([^:]+):")
+		if prefix == "group" then
+			table.insert(resolved, item)
+
+		else
+			local resolved_item = resolve_item(item)
+			if not resolved_item then
+				error(("%q doesn't exist"):format(item))
+			end
+			table.insert(resolved, resolved_item)
+		end
+
 	end
 
 	return resolved
 end
 
 local function resolve_and_replace(item, no_replace_counts, replacements)
-	if item:sub(1, 6) ~= "group:" then
-		local resolved = resolve_item(item)
+	item = ItemStack(item)
+	local name = item:get_name()
+
+	if name:sub(1, 6) ~= "group:" then
+		local resolved = resolve_item(name)
 
 		if not resolved then
-			error(("craft ingredient %q doesn't exist"):format(item))
+			error(("craft ingredient %q doesn't exist"):format(name))
 		end
 
-		item = resolved
+		name = resolved
 	end
 
-	if (no_replace_counts[item] or 0) == 0 then
-		table.insert_all(replacements, api.get_replacements(item))
+	if (no_replace_counts[name] or 0) == 0 then
+		table.insert_all(replacements, api.get_replacements(name))
 
 	else
-		no_replace_counts[item] = no_replace_counts[item] - 1
+		no_replace_counts[name] = no_replace_counts[name] - 1
 	end
 
-	return item
+	item:set_name(name)
+	return item:to_string()
 end
 
 local function analyze_and_register_shaped(craft)
