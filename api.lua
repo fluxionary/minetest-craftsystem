@@ -122,7 +122,7 @@ function api.get_replacements(item)
 
 		local replacements = {}
 
-		for _, other_item in ipairs(api.items_by_groups[name]) do
+		for _, other_item in ipairs(api.items_by_groups[name], {}) do
 			table.insert_all(replacements, api.get_replacements(other_item))
 		end
 
