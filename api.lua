@@ -81,13 +81,22 @@ function api.register_craft(def)
 	table.insert(api.registered_crafts, def)
 end
 
-function api.override_craft(def)
-	minetest.clear_craft({output = def.output})
-	for i = #api.registered_crafts, 1, -1 do
-		if api.registered_crafts[i].output == def.output then
-			table.remove(api.registered_crafts, i)
+function api.clear_craft(def)
+	if def.output then
+		minetest.clear_craft({output = def.output})
+		for i = #api.registered_crafts, 1, -1 do
+			if api.registered_crafts[i].output == def.output then
+				table.remove(api.registered_crafts, i)
+			end
 		end
+
+	else
+		error(("craftsystem.api.clear_craft not yet implemented for %q"):format(dump(def)))
 	end
+end
+
+function api.override_craft(def)
+	api.clear_craft(def)
 	api.register_craft(def)
 end
 
