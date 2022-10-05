@@ -81,6 +81,16 @@ function api.register_craft(def)
 	table.insert(api.registered_crafts, def)
 end
 
+function api.override_craft(def)
+	minetest.clear_craft({output = def.output})
+	for i = #api.registered_crafts, 1, -1 do
+		if api.registered_crafts[i].output == def.output then
+			table.remove(api.registered_crafts, i)
+		end
+	end
+	api.register_craft(def)
+end
+
 minetest.register_on_mods_loaded(function()
 	local items_by_group = {}
 

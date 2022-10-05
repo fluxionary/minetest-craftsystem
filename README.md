@@ -18,3 +18,5 @@ a minetest API mod to automate generating recipe replacements
   })
   ```
   automatically get a bottle if `"bees:bottle_honey"` is used, but not if `"default:sugar"` is used
+* `api.override_craft(def)`
+  like `register_craft`, but clears existing craft recipes (registered either w/ core or w/ this mod)
