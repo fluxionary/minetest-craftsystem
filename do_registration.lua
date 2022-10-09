@@ -1,6 +1,6 @@
 local api = craftsystem.api
 
-local count_elements = futil.count_elements
+local count_elements = table.count_elements
 local resolve_item = futil.resolve_item
 
 local function resolve_all(items)
