@@ -2,6 +2,11 @@ local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 local S = minetest.get_translator(modname)
 
+assert(
+	type(futil.version) == "number" and futil.version >= os.time({year = 2022, month = 10, day = 24}),
+	"please update futil"
+)
+
 craftsystem = {
 	version = os.time({year = 2022, month = 9, day = 2}),
 	fork = "fluxionary",
