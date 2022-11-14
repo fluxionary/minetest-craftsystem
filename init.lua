@@ -8,7 +8,7 @@ assert(
 )
 
 craftsystem = {
-	version = os.time({year = 2022, month = 9, day = 2}),
+	version = os.time({year = 2022, month = 11, day = 14}),
 	fork = "fluxionary",
 
 	modname = modname,
