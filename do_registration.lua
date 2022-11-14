@@ -65,12 +65,16 @@ local function analyze_and_register_shaped(craft)
 		end
 	end
 
-	minetest.register_craft({
+	local craft_recipe = {
 		type = "shaped",
 		output = output,
 		recipe = recipe,
 		replacements = replacements,
-	})
+	}
+
+	craftsystem.log("info", "registering craft %s", craft_recipe)
+
+	minetest.register_craft(craft_recipe)
 end
 
 local function analyze_and_register_shapeless(craft)
@@ -87,12 +91,16 @@ local function analyze_and_register_shapeless(craft)
 		recipe[i] = resolve_and_replace(item, no_replace_counts, replacements)
 	end
 
-	minetest.register_craft({
+	local craft_recipe = {
 		type = "shapeless",
 		output = output,
 		recipe = recipe,
 		replacements = replacements,
-	})
+	}
+
+	craftsystem.log("info", "registering craft %s", craft_recipe)
+
+	minetest.register_craft(craft_recipe)
 end
 
 local function analyze_and_register_cooking(craft)
@@ -131,7 +139,8 @@ local function analyze_and_register_fuel(craft)
 	})
 end
 
-minetest.register_on_mods_loaded(function()
+-- before unified_inventory sets itself up
+table.insert(minetest.registered_on_mods_loaded, 2, function()
 	-- we assume all items and groups are final at this point
 
 	for _, craft in ipairs(api.registered_crafts) do

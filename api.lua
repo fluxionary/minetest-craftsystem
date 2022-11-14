@@ -77,6 +77,9 @@ end
 api.registered_crafts = {}
 
 function api.register_craft(def)
+	if not def.type then
+		def.type = "shaped"
+	end
 	validate(def)
 	table.insert(api.registered_crafts, def)
 end
@@ -100,7 +103,8 @@ function api.override_craft(def)
 	api.register_craft(def)
 end
 
-minetest.register_on_mods_loaded(function()
+-- before unified_inventory sets itself up
+table.insert(minetest.registered_on_mods_loaded, 1, function()
 	local items_by_group = {}
 
 	for name, def in pairs(minetest.registered_items) do
