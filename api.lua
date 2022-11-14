@@ -32,7 +32,7 @@ local function validate(def)
 	assert(def, "recipe is nil")
 
 	if def.type == "fuel" then
-		assert(type(def.recipe) == "string", ("invalid fuel recipe %q"):format(dump(def.recipe)))
+		assert(type(def.recipe) == "string", ("invalid fuel recipe %s"):format(dump(def.recipe)))
 		return
 	end
 
@@ -40,30 +40,30 @@ local function validate(def)
 	assert(not def.output:match("^group:"), ("invalid output %q"):format(dump(def.output)))
 
 	if def.type == "cooking" then
-		assert(type(def.recipe) == "string", ("invalid cooking recipe %q"):format(dump(def.recipe)))
+		assert(type(def.recipe) == "string", ("invalid cooking recipe %s"):format(dump(def.recipe)))
 
 	elseif def.type == "shapeless" then
-		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shapeless recipe %q"):format(dump(def.recipe)))
+		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shapeless recipe %s"):format(dump(def.recipe)))
 
 		local expeted_count = #def.recipe
 		local count = 0
 
 		for k, v in pairs(def.recipe) do
 			count = count + 1
-			assert(type(k) == "number" and type(v) == "string", ("invalid shapeless recipe %q"):format(dump(def.recipe)))
+			assert(type(k) == "number" and type(v) == "string", ("invalid shapeless recipe %s"):format(dump(def.recipe)))
 		end
 
-		assert(count == expeted_count, ("invalid shapeless recipe %q"):format(dump(def.recipe)))
+		assert(count == expeted_count, ("invalid shapeless recipe %s"):format(dump(def.recipe)))
 
 	elseif def.type == nil or def.type == "shaped" then
-		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shaped recipe %q"):format(dump(def.recipe)))
+		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shaped recipe %s"):format(dump(def.recipe)))
 		local expected_width = #def.recipe[1]
 		for k, v in pairs(def.recipe) do
 			assert(type(k) == "number" and type(v) == "table" and #v == expected_width,
-                               ("invalid shaped recipe %q"):format(dump(def.recipe)))
+                               ("invalid shaped recipe %s"):format(dump(def.recipe)))
 			local width = 0
 			for k1, v1 in pairs(v) do
-				assert(type(k1) == "number" and type(v1) == "string", ("invalid shaped recipe %q"):format(dump(def.recipe)))
+				assert(type(k1) == "number" and type(v1) == "string", ("invalid shaped recipe %s"):format(dump(def.recipe)))
 				width = width + 1
 			end
 			assert(width == expected_width)
