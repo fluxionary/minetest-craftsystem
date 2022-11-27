@@ -12,16 +12,25 @@ function api.register_replacement(item, replacement)
 
 	if mod == "group" then
 		if api.group_replacements[name] then
-			craftsystem.log("warning", "overriding replacement for group %q; %q -> %q",
-				name, api.group_replacements[name], replacement)
+			craftsystem.log(
+				"warning",
+				"overriding replacement for group %q; %q -> %q",
+				name,
+				api.group_replacements[name],
+				replacement
+			)
 		end
 
 		api.group_replacements[name] = replacement
-
 	else
 		if api.item_replacements[item] then
-			craftsystem.log("warning", "overriding replacement for %q; %q -> %q",
-				item, api.item_replacements[item], replacement)
+			craftsystem.log(
+				"warning",
+				"overriding replacement for %q; %q -> %q",
+				item,
+				api.item_replacements[item],
+				replacement
+			)
 		end
 
 		api.item_replacements[item] = replacement
@@ -41,34 +50,42 @@ local function validate(def)
 
 	if def.type == "cooking" then
 		assert(type(def.recipe) == "string", ("invalid cooking recipe %s"):format(dump(def.recipe)))
-
 	elseif def.type == "shapeless" then
-		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shapeless recipe %s"):format(dump(def.recipe)))
+		assert(
+			type(def.recipe) == "table" and #def.recipe > 0,
+			("invalid shapeless recipe %s"):format(dump(def.recipe))
+		)
 
 		local expeted_count = #def.recipe
 		local count = 0
 
 		for k, v in pairs(def.recipe) do
 			count = count + 1
-			assert(type(k) == "number" and type(v) == "string", ("invalid shapeless recipe %s"):format(dump(def.recipe)))
+			assert(
+				type(k) == "number" and type(v) == "string",
+				("invalid shapeless recipe %s"):format(dump(def.recipe))
+			)
 		end
 
 		assert(count == expeted_count, ("invalid shapeless recipe %s"):format(dump(def.recipe)))
-
 	elseif def.type == nil or def.type == "shaped" then
 		assert(type(def.recipe) == "table" and #def.recipe > 0, ("invalid shaped recipe %s"):format(dump(def.recipe)))
 		local expected_width = #def.recipe[1]
 		for k, v in pairs(def.recipe) do
-			assert(type(k) == "number" and type(v) == "table" and #v == expected_width,
-                               ("invalid shaped recipe %s"):format(dump(def.recipe)))
+			assert(
+				type(k) == "number" and type(v) == "table" and #v == expected_width,
+				("invalid shaped recipe %s"):format(dump(def.recipe))
+			)
 			local width = 0
 			for k1, v1 in pairs(v) do
-				assert(type(k1) == "number" and type(v1) == "string", ("invalid shaped recipe %s"):format(dump(def.recipe)))
+				assert(
+					type(k1) == "number" and type(v1) == "string",
+					("invalid shaped recipe %s"):format(dump(def.recipe))
+				)
 				width = width + 1
 			end
 			assert(width == expected_width)
 		end
-
 	else
 		error(("unknown recipe type %q"):format(def.type))
 	end
@@ -86,13 +103,12 @@ end
 
 function api.clear_craft(def)
 	if def.output then
-		minetest.clear_craft({output = def.output})
+		minetest.clear_craft({ output = def.output })
 		for i = #api.registered_crafts, 1, -1 do
 			if api.registered_crafts[i].output == def.output then
 				table.remove(api.registered_crafts, i)
 			end
 		end
-
 	else
 		error(("craftsystem.api.clear_craft not yet implemented for %q"):format(dump(def)))
 	end
@@ -110,8 +126,14 @@ table.insert(minetest.registered_on_mods_loaded, 1, function()
 	for name, def in pairs(minetest.registered_items) do
 		for group, value in pairs(def.groups or {}) do
 			if type(value) ~= "number" then
-				craftsystem.log("error", "value %q for group %s of item %s is type %s; must be number",
-					value, group, name, type(value))
+				craftsystem.log(
+					"error",
+					"value %q for group %s of item %s is type %s; must be number",
+					value,
+					group,
+					name,
+					type(value)
+				)
 
 				value = tonumber(value)
 			end
@@ -136,7 +158,7 @@ function api.get_replacements(item)
 
 	if mod == "group" then
 		if api.group_replacements[name] then
-			return {{name, api.group_replacements[name]}}
+			return { { name, api.group_replacements[name] } }
 		end
 
 		if not api.items_by_groups then
@@ -150,9 +172,8 @@ function api.get_replacements(item)
 		end
 
 		return replacements
-
 	elseif api.item_replacements[item] then
-		return {{item, api.item_replacements[item]}}
+		return { { item, api.item_replacements[item] } }
 	end
 
 	return {}

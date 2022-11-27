@@ -10,7 +10,6 @@ local function resolve_all(items)
 		local prefix = item:match("^([^:]+):")
 		if prefix == "group" then
 			table.insert(resolved, item)
-
 		else
 			local resolved_item = resolve_item(item)
 			if not resolved_item then
@@ -18,7 +17,6 @@ local function resolve_all(items)
 			end
 			table.insert(resolved, resolved_item)
 		end
-
 	end
 
 	return resolved
@@ -40,7 +38,6 @@ local function resolve_and_replace(item, no_replace_counts, replacements)
 
 	if (no_replace_counts[name] or 0) == 0 then
 		table.insert_all(replacements, api.get_replacements(name))
-
 	else
 		no_replace_counts[name] = no_replace_counts[name] - 1
 	end
@@ -146,13 +143,10 @@ table.insert(minetest.registered_on_mods_loaded, 2, function()
 	for _, craft in ipairs(api.registered_crafts) do
 		if craft.type == "shaped" then
 			analyze_and_register_shaped(craft)
-
 		elseif craft.type == "shapeless" then
 			analyze_and_register_shapeless(craft)
-
 		elseif craft.type == "cooking" then
 			analyze_and_register_cooking(craft)
-
 		elseif craft.type == "fuel" then
 			analyze_and_register_fuel(craft)
 		end

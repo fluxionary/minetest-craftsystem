@@ -3,27 +3,26 @@ local modpath = minetest.get_modpath(modname)
 local S = minetest.get_translator(modname)
 
 assert(
-	type(futil.version) == "number" and futil.version >= os.time({year = 2022, month = 10, day = 24}),
+	type(futil.version) == "number" and futil.version >= os.time({ year = 2022, month = 10, day = 24 }),
 	"please update futil"
 )
 
 craftsystem = {
-	version = os.time({year = 2022, month = 11, day = 14}),
+	version = os.time({ year = 2022, month = 11, day = 14 }),
 	fork = "fluxionary",
 
 	modname = modname,
 	modpath = modpath,
 	S = S,
 
-	has = {
-	},
+	has = {},
 
 	log = function(level, messagefmt, ...)
 		return minetest.log(level, ("[%s] %s"):format(modname, messagefmt:format(...)))
 	end,
 
 	dofile = function(...)
-		return dofile(table.concat({modpath, ...}, DIR_DELIM) .. ".lua")
+		return dofile(table.concat({ modpath, ... }, DIR_DELIM) .. ".lua")
 	end,
 }
 
