@@ -69,7 +69,7 @@ local function analyze_and_register_shaped(craft)
 		replacements = replacements,
 	}
 
-	craftsystem.log("info", "registering craft %s", craft_recipe)
+	craftsystem.log("info", "registering craft %s", dump(craft_recipe))
 
 	minetest.register_craft(craft_recipe)
 end
@@ -95,7 +95,7 @@ local function analyze_and_register_shapeless(craft)
 		replacements = replacements,
 	}
 
-	craftsystem.log("info", "registering craft %s", craft_recipe)
+	craftsystem.log("info", "registering craft %s", dump(craft_recipe))
 
 	minetest.register_craft(craft_recipe)
 end
