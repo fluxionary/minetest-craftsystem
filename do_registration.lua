@@ -3,7 +3,7 @@ local api = craftsystem.api
 local count_elements = futil.table.count_elements
 local resolve_item = futil.resolve_item
 
-local function resolve_all(items)
+local function resolve_all(items, craft)
 	local resolved = {}
 
 	for _, item in ipairs(items or {}) do
@@ -13,7 +13,7 @@ local function resolve_all(items)
 		else
 			local resolved_item = resolve_item(item)
 			if not resolved_item then
-				error(("%q doesn't exist"):format(item))
+				error(("%q doesn't exist in recipe %s"):format(item, dump(craft)))
 			end
 			table.insert(resolved, resolved_item)
 		end
@@ -22,7 +22,7 @@ local function resolve_all(items)
 	return resolved
 end
 
-local function resolve_and_replace(item, no_replace_counts, replacements)
+local function resolve_and_replace(item, no_replace_counts, replacements, craft)
 	item = ItemStack(item)
 	local name = item:get_name()
 
@@ -30,7 +30,7 @@ local function resolve_and_replace(item, no_replace_counts, replacements)
 		local resolved = resolve_item(name)
 
 		if not resolved then
-			error(("craft ingredient %q doesn't exist"):format(name))
+			error(("craft ingredient %q doesn't exist in recipe %s"):format(name, dump(craft)))
 		end
 
 		name = resolved
@@ -49,16 +49,16 @@ end
 local function analyze_and_register_shaped(craft)
 	local output = resolve_item(craft.output)
 	if not output then
-		error(("craft output %q doesn't exist"):format(craft.output))
+		error(("craft output %q doesn't exist in recipe %s"):format(craft.output, dump(craft)))
 	end
 
 	local recipe = table.copy(craft.recipe)
-	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace, craft))
 	local replacements = {}
 
 	for _, row in ipairs(recipe) do
 		for j, item in pairs(row) do
-			row[j] = resolve_and_replace(item, no_replace_counts, replacements)
+			row[j] = resolve_and_replace(item, no_replace_counts, replacements, craft)
 		end
 	end
 
@@ -77,15 +77,15 @@ end
 local function analyze_and_register_shapeless(craft)
 	local output = resolve_item(craft.output)
 	if not output then
-		error(("craft output %q doesn't exist"):format(craft.output))
+		error(("craft output %q doesn't exist in recipe %s"):format(craft.output, dump(craft)))
 	end
 
 	local recipe = table.copy(craft.recipe)
-	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace, craft))
 	local replacements = {}
 
 	for i, item in pairs(recipe) do
-		recipe[i] = resolve_and_replace(item, no_replace_counts, replacements)
+		recipe[i] = resolve_and_replace(item, no_replace_counts, replacements, craft)
 	end
 
 	local craft_recipe = {
@@ -103,14 +103,14 @@ end
 local function analyze_and_register_cooking(craft)
 	local output = resolve_item(craft.output)
 	if not output then
-		error(("craft output %q doesn't exist"):format(craft.output))
+		error(("craft output %q doesn't exist in recipe %s"):format(craft.output, dump(craft)))
 	end
 
 	local item = craft.recipe
-	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace, craft))
 	local replacements = {}
 
-	item = resolve_and_replace(item, no_replace_counts, replacements)
+	item = resolve_and_replace(item, no_replace_counts, replacements, craft)
 
 	minetest.register_craft({
 		type = "cooking",
@@ -123,10 +123,10 @@ end
 
 local function analyze_and_register_fuel(craft)
 	local item = craft.recipe
-	local no_replace_counts = count_elements(resolve_all(craft.no_replace))
+	local no_replace_counts = count_elements(resolve_all(craft.no_replace, craft))
 	local replacements = {}
 
-	item = resolve_and_replace(item, no_replace_counts, replacements)
+	item = resolve_and_replace(item, no_replace_counts, replacements, craft)
 
 	minetest.register_craft({
 		type = "fuel",

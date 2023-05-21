@@ -98,6 +98,7 @@ function api.register_craft(def)
 		def.type = "shaped"
 	end
 	validate(def)
+	def.traceback = debug.traceback()
 	table.insert(api.registered_crafts, def)
 end
 
