@@ -7,5 +7,5 @@
     "repo": "https://github.com/fluxionary/minetest-craftsystem.git",
     "website": "https://github.com/fluxionary/minetest-craftsystem",
     "issue_tracker": "https://github.com/fluxionary/minetest-craftsystem/issues",
-    "short_description": "craft registration API which automatically deals w/ replacements",
+    "short_description": "craft registration API which automatically deals w/ replacements"
 }
